@@ -1,0 +1,27 @@
+CREATE TABLE contact (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    name_timestamp TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    phone_timestamp TEXT NOT NULL,
+    email TEXT NOT NULL,
+    email_timestamp TEXT NOT NULL,
+    tombstone TEXT NOT NULL,
+    tombstone_timestamp TEXT NOT NULL
+);
+
+all:
+SELECT * FROM contact ORDER BY name DESC ;
+
+whereIn:
+SELECT * FROM contact WHERE id IN ? ORDER BY name DESC ;
+
+findById:
+SELECT * FROM contact WHERE id = ?;
+
+findRandom:
+SELECT * FROM contact ORDER BY RANDOM() LIMIT 1;
+
+upsert:
+INSERT OR REPLACE INTO contact (id, name, name_timestamp, phone, phone_timestamp, email, email_timestamp, tombstone, tombstone_timestamp)
+VALUES ?;

@@ -1,0 +1,10 @@
+services:
+  server:
+    image: "gradle:7.5.0-jdk18"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ~/.m2/:/root/.m2
+      - ../:/app
+    working_dir: /app
+    command: "gradle :server:run"

@@ -1,0 +1,17 @@
+
+CREATE TABLE contact_delta_event_source (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  crdt_id TEXT NOT NULL,
+  column TEXT NOT NULL,
+  value TEXT NOT NULL,
+  timestamp TEXT NOT NULL
+);
+
+CREATE INDEX contact_delta_event_source_timestamp ON contact_delta_event_source(timestamp);
+
+eventsSince:
+SELECT * FROM contact_delta_event_source WHERE id > ?;
+
+insert:
+INSERT OR IGNORE INTO contact_delta_event_source (crdt_id, column, value, timestamp)
+VALUES (?, ?, ?, ?);
