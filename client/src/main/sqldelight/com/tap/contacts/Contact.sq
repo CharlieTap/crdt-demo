@@ -25,3 +25,6 @@ SELECT * FROM contact ORDER BY RANDOM() LIMIT 1;
 upsert:
 INSERT OR REPLACE INTO contact (id, name, name_timestamp, phone, phone_timestamp, email, email_timestamp, tombstone, tombstone_timestamp)
 VALUES ?;
+
+wipe:
+DELETE FROM contact;

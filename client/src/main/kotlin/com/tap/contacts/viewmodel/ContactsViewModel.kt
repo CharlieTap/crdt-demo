@@ -6,9 +6,11 @@ import androidx.work.WorkManager
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.tap.contacts.Database
+import com.tap.contacts.data.ContactsDatastore
 import com.tap.contacts.jobs.ContactDeltaGenerator
 import com.tap.contacts.jobs.ContactsSync
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
@@ -19,7 +21,8 @@ import javax.inject.Inject
 class ContactsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val database: Database,
-    private val workManager: WorkManager
+    private val workManager: WorkManager,
+    private val datastore: ContactsDatastore
 ) : MVIViewModel<ContactsState, ContactsEvent, ContactsEffect>()
 {
     private val contacts        = database.contactQueries.all().asFlow().mapToList()
@@ -56,6 +59,12 @@ class ContactsViewModel @Inject constructor(
                     } else {
                         ContactDeltaGenerator.cancel(workManager)
                     }
+                }
+            }
+            ContactsEvent.ResetState -> {
+                viewModelScope.launch (Dispatchers.IO){
+                    database.contactQueries.wipe()
+                    datastore.saveLastSyncId(0)
                 }
             }
         }

@@ -39,9 +39,12 @@ class ContactsActivity : AppCompatActivity()
             val state = viewModel.state.collectAsState()
 
             Column {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                     Button(onClick = { eventHandler(ContactsEvent.ToggleEventGeneration) }) {
                         Text(state.value.genButtonName)
+                    }
+                    Button(onClick = { eventHandler(ContactsEvent.ResetState) }) {
+                        Text("Reset")
                     }
                 }
                 LazyColumn {
