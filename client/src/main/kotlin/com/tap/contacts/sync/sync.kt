@@ -80,11 +80,9 @@ suspend fun syncClock(localClockStream: MutableStateFlow<HybridLogicalClock>, ev
 
 suspend fun syncData(queries: ContactQueries, deltas: Set<CRDTDelta>) {
 
-    val contactMap = queries.whereIn(deltas.map{ it.id.toString()}).executeAsList().fold(mutableMapOf<String, Contact>()) { acc, contact ->
-        acc.apply {
-            put(contact.id, contact)
-        }
-    }
+    val contactMap = queries.whereIn(deltas.map{ it.id.toString()})
+        .executeAsList()
+        .associateBy { it.id }
 
     mutate(contactMap, deltas).forEach { contact ->
         queries.upsert(contact)
