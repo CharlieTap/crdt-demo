@@ -135,7 +135,7 @@ class ContactDeltaGenerator @AssistedInject constructor(
 
         while (true) {
             val random = Random.nextInt(0, 100)
-            val operation = if(random < 60) {
+            val operation = if(random < 60) { // bias creation and updates else everything would be deleted
                 0
             } else if(random < 95) {
                 1

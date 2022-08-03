@@ -11,7 +11,7 @@ CREATE TABLE contact (
 );
 
 all:
-SELECT * FROM contact ORDER BY name DESC ;
+SELECT * FROM contact WHERE tombstone != '1' ORDER BY name DESC ;
 
 whereIn:
 SELECT * FROM contact WHERE id IN ? ORDER BY name DESC ;
