@@ -1,14 +1,19 @@
 # Contacts δ-CRDT Demo
 
-This demo project exhibits client nodes which propagate delta based CRDT state changes.
+This demo project exhibits a distributed system which propagate delta based CRDT state changes.
 
 The server is merely a relay for the clients, it aggregates an event source of all delta changes propagated from each client.
+
+Clients serve as nodes in the system, they create information locally first before propagating their state changes
+to others. The clients are capable of operating entirely offline from the network, the CRDT conflict 
+resolution algorithm guarantees eventual consistency.
 
 Each client features the following:
 
 - A SQLite database which functions as a [GSet](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type#G-Set_(Grow-only_Set)) of LWW Maps
 - A [HybridLogicalClock](https://cse.buffalo.edu/tech-reports/2014-04.pdf) to help maintain the causal ordering of events between its own and those of other clients
 - A delta generator process which simulates the creation, mutation and deletion of contacts 
+- A synchronisation queue which has all jobs serialised to disk, ensuring that no messages will ever be dropped.
 
 # Architecture
 
@@ -102,6 +107,8 @@ structure.
   "value": "Jim"
 }
 ```
+
+
 
 
 
