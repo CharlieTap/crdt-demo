@@ -1,6 +1,6 @@
 # Contacts δ-CRDT Demo
 
-This demo project exhibits a distributed system which propagate delta based CRDT state changes.
+This demo project exhibits a distributed system which propagates delta based CRDT state changes.
 
 The server is merely a relay for the clients, it aggregates an event source of all delta changes propagated from each client.
 
@@ -11,9 +11,9 @@ resolution algorithm guarantees eventual consistency.
 Each client features the following:
 
 - A SQLite database which functions as a [GSet](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type#G-Set_(Grow-only_Set)) of LWW Maps
-- A [HybridLogicalClock](https://cse.buffalo.edu/tech-reports/2014-04.pdf) to help maintain the causal ordering of events between its own and those of other clients
+- A [HybridLogicalClock](https://cse.buffalo.edu/tech-reports/2014-04.pdf) to help maintain the causal ordering between events of its own and those of other clients
 - A delta generator process which simulates the creation, mutation and deletion of contacts 
-- A synchronisation queue which has all jobs serialised to disk, ensuring that no messages will ever be dropped.
+- A synchronisation message queue which has all jobs serialised to disk, ensuring that no messages will ever be dropped.
 
 # Architecture
 
@@ -107,6 +107,24 @@ structure.
   "value": "Jim"
 }
 ```
+
+# Further work
+
+This demo is designed to be simple and thus there's lots of optimisations that could be made:
+
+- The original paper on Delta based CRDTs talks of CRDT delta intervals, which are essentially the aggregation 
+of multiple deltas into a single latest delta for a particular property. This is particularly beneficial when adding
+a new node into a system with a lot of existing events, rather than replaying the event source you can replay just the 
+latest delta for each property.
+- Currently nodes transmit the latest event they have seen using an auto-incrementing integer on the server.
+. This works well in the situation wherefore you have just a centralised server and a non sharded database but less so otherwise. 
+
+# Acknowledgements
+
+- This system is heavily inspired by James Long's [CRDT's for mortals](https://www.youtube.com/watch?v=DEcwa68f-jY) 
+- The HLC implementation can be found [here](https://github.com/CharlieTap/hlc) 
+
+
 
 
 
