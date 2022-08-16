@@ -13,8 +13,11 @@ import com.tap.contacts.viewmodel.ContactsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.tap.contacts.viewmodel.ContactsEvent
@@ -54,13 +57,13 @@ class ContactsActivity : AppCompatActivity()
                             horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Card(Modifier.fillMaxWidth().padding(8.dp)) {
+                            Card(Modifier.fillMaxWidth().padding(8.dp, 12.dp)) {
                                 Row(Modifier.padding(8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Column {
-                                        Text(contact.name)
+                                        Text(contact.name, style = MaterialTheme.typography.subtitle1)
                                     }
-                                    Column() {
-                                        Text(contact.email)
+                                    Column(Modifier.width(200.dp)) {
+                                        Text(contact.email, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                         Text(contact.phone)
                                     }
                                 }

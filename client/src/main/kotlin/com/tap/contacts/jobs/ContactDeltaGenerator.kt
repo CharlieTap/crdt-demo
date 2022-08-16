@@ -37,6 +37,9 @@ class ContactDeltaGenerator @AssistedInject constructor(
 
     companion object {
         private const val WORK_QUEUE_NAME = "delta_gen"
+        private const val OP_CODE_CREATE = 0
+        private const val OP_CODE_UPDATE = 1
+        private const val OP_CODE_DELETE = 2
 
         fun schedule(manager: WorkManager) {
 
@@ -67,10 +70,10 @@ class ContactDeltaGenerator @AssistedInject constructor(
             Contact::id.name to id.toString(),
             Contact::name.name to name,
             Contact::phone.name to faker.phoneNumber.phoneNumber(),
-            Contact::email.name to "$name@google.com",
+            Contact::email.name to "$name@google.com".lowercase().replace(" ", "_"),
             Contact::tombstone.name to "0"
         ).map { entry ->
-            val timestamp = HybridLogicalClock.increment(localClockStream.value).getOrThrow { IllegalStateException() }
+            val timestamp = HybridLogicalClock.localTick(localClockStream.value).getOrThrow { IllegalStateException() }
             localClockStream.emit(timestamp)
             CRDTDelta(
                 "contacts",
@@ -85,18 +88,19 @@ class ContactDeltaGenerator @AssistedInject constructor(
 
     private suspend fun updateContact(contactQueries: ContactQueries) : Set<CRDTDelta> {
 
+        val name = faker.name.name()
         val contact = contactQueries.findRandom().executeAsOneOrNull() ?: return emptySet()
 
         val mutationMap = mapOf(
-            Contact::name.name to faker.name.name(),
+            Contact::name.name to name,
             Contact::phone.name to faker.phoneNumber.phoneNumber(),
-            Contact::email.name to faker.name.name() + "@google.com",
+            Contact::email.name to "$name@google.com".lowercase().replace(" ", "_"),
         )
 
         val randomEntry = mutationMap.entries.elementAt(Random.nextInt(mutationMap.size))
 
         return randomEntry.let { entry ->
-            val timestamp = HybridLogicalClock.increment(localClockStream.value).getOrThrow { IllegalStateException() }
+            val timestamp = HybridLogicalClock.localTick(localClockStream.value).getOrThrow { IllegalStateException() }
             localClockStream.emit(timestamp)
             setOf( CRDTDelta(
                 "contacts",
@@ -114,7 +118,7 @@ class ContactDeltaGenerator @AssistedInject constructor(
         return mapOf(
             Contact::tombstone.name to "1"
         ).map { entry ->
-            val timestamp = HybridLogicalClock.increment(localClockStream.value).getOrThrow { IllegalStateException() }
+            val timestamp = HybridLogicalClock.localTick(localClockStream.value).getOrThrow { IllegalStateException() }
             localClockStream.emit(timestamp)
             CRDTDelta(
                 "contacts",
@@ -136,21 +140,21 @@ class ContactDeltaGenerator @AssistedInject constructor(
         while (true) {
             val random = Random.nextInt(0, 100)
             val operation = if(random < 60) { // bias creation and updates else everything would be deleted
-                0
+                OP_CODE_CREATE
             } else if(random < 95) {
-                1
+                OP_CODE_UPDATE
             } else {
-                2
+                OP_CODE_DELETE
             }
 
             val deltas = when(operation) {
-                0 -> {
+                OP_CODE_CREATE -> {
                      createContact(database.contactQueries)
                 }
-                1 -> {
+                OP_CODE_UPDATE -> {
                     updateContact(database.contactQueries)
                 }
-                2 -> {
+                OP_CODE_DELETE -> {
                     deleteContact(database.contactQueries)
                 }
                 else -> {

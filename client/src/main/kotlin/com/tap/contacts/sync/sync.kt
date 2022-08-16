@@ -68,7 +68,7 @@ fun mutate(existingContactMap: Map<String, Contact>, deltas: Set<CRDTDelta>) : S
  */
 suspend fun syncClock(localClockStream: MutableStateFlow<HybridLogicalClock>, events: Set<CRDTDelta>) : MutableStateFlow<HybridLogicalClock> {
     return events.fold(localClockStream.value) { acc, event ->
-        HybridLogicalClock.receive(localClockStream.value, event.timestamp).getOr(acc)
+        HybridLogicalClock.remoteTock(localClockStream.value, event.timestamp).getOr(acc)
     }.let {syncedClock ->
         localClockStream.emit(syncedClock)
         localClockStream
